@@ -7,6 +7,7 @@ const Stack = createNativeStackNavigator();
 //Screens
 import Welcome from "../screens/Welcome";
 import WeatherScreen from "../screens/WeatherScreen";
+import Search from "../screens/Search";
 
 export default function AppNavigation() {
   const { location } = useLocation();
@@ -14,7 +15,10 @@ export default function AppNavigation() {
     <NavigationContainer>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         {location ? (
-          <Stack.Screen name="WeatherScreen" component={WeatherScreen} />
+          <>
+            <Stack.Screen name="WeatherScreen" component={WeatherScreen} />
+            <Stack.Screen name="Search" component={Search} />
+          </>
         ) : (
           <Stack.Screen name="Welcome" component={Welcome} />
         )}

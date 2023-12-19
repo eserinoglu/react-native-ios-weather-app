@@ -9,7 +9,7 @@ import dayjs from "dayjs";
 import { FontAwesome5 } from "@expo/vector-icons";
 import { BlurView } from "expo-blur";
 
-export default function WeatherScreen() {
+export default function WeatherScreen({ navigation }) {
   const { width } = Dimensions.get("window");
   const insets = useSafeAreaInsets();
   const { location } = useLocation();
@@ -64,7 +64,7 @@ export default function WeatherScreen() {
                 {weatherData?.name}
               </Text>
             </View>
-            <TouchableOpacity>
+            <TouchableOpacity onPress={() => navigation.navigate("Search")}>
               <FontAwesome5 name="search" size={24} color="white" />
             </TouchableOpacity>
           </View>

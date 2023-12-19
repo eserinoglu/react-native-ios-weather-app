@@ -8,21 +8,21 @@ export const LocationProvider = ({ children }) => {
   const [errorMsg, setErrorMsg] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  const getLocation = async () => {
-    setIsLoading(true);
-    const location = await Location.getCurrentPositionAsync({});
-    setLocation(location);
-    setIsLoading(false);
-  };
-
   const askLocation = async () => {
     const { status } = await Location.requestForegroundPermissionsAsync();
     if (status !== "granted") {
       setErrorMsg("Permission to access location was denied");
       return;
     }
-    getLocation();
+    setIsLoading(true);
+    const location = await Location.getCurrentPositionAsync({});
+    setLocation(location);
+    setIsLoading(false);
   };
+
+  useEffect(() => {
+    askLocation();
+  }, []);
 
   return (
     <LocationContext.Provider value={{ location, errorMsg, askLocation }}>
