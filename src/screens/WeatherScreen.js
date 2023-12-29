@@ -1,127 +1,110 @@
-import { View, Text, Image, Dimensions, TouchableOpacity } from "react-native";
-import React, { useEffect, useState } from "react";
+import { View, Text, Image, StatusBar, Pressable } from "react-native";
+import React, { useEffect, useState, useRef } from "react";
 import { useLocation } from "../context/LocationContext";
-import { LinearGradient } from "expo-linear-gradient";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import BottomSheet from "@gorhom/bottom-sheet";
-import { FlatList } from "react-native-gesture-handler";
+import useFindIcon from "../hooks/useFindIcon";
 import dayjs from "dayjs";
-import { FontAwesome5 } from "@expo/vector-icons";
+import background from "../../assets/background.avif";
+import sunrise from "../../assets/icons/day/sunny.png";
+import sunset from "../../assets/icons/night/clear.png";
+import { Ionicons } from "@expo/vector-icons";
+import BottomSheet from "@gorhom/bottom-sheet";
 import { BlurView } from "expo-blur";
+import WeatherDetails from "../components/WeatherDetails";
+import ForecastData from "../components/ForecastData";
 
 export default function WeatherScreen({ navigation }) {
-  const { width } = Dimensions.get("window");
   const insets = useSafeAreaInsets();
   const { location } = useLocation();
+  const bottomSheetRef = useRef(null);
+  const snapPoints = [80, 320];
   const [weatherData, setWeatherData] = useState(null);
-  const apiUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${location.coords.latitude}&lon=${location.coords.longitude}&appid=e0323d106bbdae87e861fcaefa97ec12&units=metric`;
+  const [astronomyData, setAstronomyData] = useState(null);
+  const apiUrl = `http://api.weatherapi.com/v1/current.json?key=cd3ffd95c70846e09c5140130232912&q=${location.coords.latitude},${location.coords.longitude}&aqi=no`;
   const fetchWeatherData = async () => {
     const res = await fetch(apiUrl);
     const data = await res.json();
     setWeatherData(data);
   };
+  const fetchAstronomyData = async () => {
+    const res = await fetch(
+      `http://api.weatherapi.com/v1/astronomy.json?key=cd3ffd95c70846e09c5140130232912&q=${location.coords.latitude},${location.coords.longitude}&aqi=no`
+    );
+    const data = await res.json();
+    setAstronomyData(data);
+  };
+  useEffect(() => {
+    fetchAstronomyData();
+  }, [location]);
   useEffect(() => {
     fetchWeatherData();
   }, [location]);
-  const bottomSheetRef = React.useRef(null);
-  const snapPoints = ["38%"];
-  const humidity = weatherData?.main.humidity;
-  const wind = weatherData?.wind.speed;
-  const maxTemp = weatherData?.main.temp_max.toFixed(0);
-  const minTemp = weatherData?.main.temp_min.toFixed(0);
-  const sunrise = dayjs(weatherData?.sys.sunrise * 1000).format("hh:mm");
-  const sunset = dayjs(weatherData?.sys.sunset * 1000).format("hh:mm");
-  const datas = [
-    { title: "Humidity", value: humidity + "%", icon: "water-outline" },
-    { title: "Wind", value: wind + "km/h", icon: "wind" },
-    {
-      title: "Max Temp",
-      value: maxTemp + "℃",
-      icon: "thermometer",
-    },
-    {
-      title: "Min Temp",
-      value: minTemp + "℃",
-      icon: "thermometer-half",
-    },
-    { title: "Sunrise", value: sunrise + " am", icon: "sunrise" },
-    { title: "Sunset", value: sunset + " pm", icon: "sunset" },
-  ];
-  if (weatherData) {
-    return (
-      <View className="flex-1">
-        <LinearGradient
-          colors={["#6CC3FF", "#1485D3"]}
-          className="absolute top-0 right-0 left-0 w-full h-full"
-        />
-        <View style={{ paddingTop: insets.top + 30, paddingHorizontal: 16 }}>
-          <View className="flex-row items-center justify-between pr-4">
-            <View>
-              <Text className="text-white/80 font-medium tracking-tight text-lg">
-                {weatherData?.sys.country}
-              </Text>
-              <Text className="text-white tracking-tight font-semibold text-2xl">
-                {weatherData?.name}
-              </Text>
-            </View>
-            <TouchableOpacity onPress={() => navigation.navigate("Search")}>
-              <FontAwesome5 name="search" size={24} color="white" />
-            </TouchableOpacity>
-          </View>
-          <Image
-            className="w-36 aspect-square mx-auto mt-5"
-            source={{
-              uri: `https://openweathermap.org/img/wn/${weatherData.weather[0].icon}@2x.png`,
-            }}
-          />
-          <Text className="mx-auto text-white/60 tracking-tight">
-            {weatherData.weather[0].main}
+  return (
+    <View className="flex-1 bg-black justify-around pb-24">
+      <Image
+        resizeMode="cover"
+        source={background}
+        className="absolute w-full h-full top-0 right-0 bottom-0 left-0 transform rotate-180"
+      />
+      <StatusBar />
+      <View
+        style={{ paddingTop: insets.top }}
+        className="flex-row items-center justify-between"
+      >
+        <View className="px-5 mb-2">
+          <Text className="text-white/60 tracking-tight text-lg">
+            {weatherData?.location?.country}
           </Text>
-          <Text className="text-[82px] font-bold tracking-tight text-white mx-auto">
-            {weatherData.main.temp.toFixed(0)}℃
+          <Text className="text-white font-bold tracking-tight text-3xl">
+            {weatherData?.location?.name}
           </Text>
-          <View className="items-center mx-auto mt-3">
-            <Text className="text-white/50 tracking-tight">Feels like</Text>
-            <Text className="text-lg tracking-tight text-white font-medium">
-              {weatherData.main.feels_like.toFixed(0)}℃
-            </Text>
-          </View>
         </View>
-        <BottomSheet
-          backgroundComponent={({ style }) => (
-            <BlurView style={style} tint="light" intensity={100} />
-          )}
-          ref={bottomSheetRef}
-          snapPoints={snapPoints}
-        >
-          <View className="w-full h-full p-4 flex-col space-y-3">
-            <FlatList
-              numColumns={2}
-              key={2}
-              scrollEnabled={false}
-              data={datas}
-              contentContainerStyle={{ gap: 6 }}
-              columnWrapperStyle={{ gap: 6 }}
-              keyExtractor={(item) => item.title}
-              renderItem={({ item }) => (
-                <View
-                  className="bg-black/5 flex-row items-center p-3 rounded-xl"
-                  style={{ width: (width - 38) / 2 }}
-                >
-                  <View className="flex-col">
-                    <Text className="text-black/80 font-medium tracking-tight">
-                      {item.title}
-                    </Text>
-                    <Text className="text-black/60 tracking-tight text-lg">
-                      {item.value}
-                    </Text>
-                  </View>
-                </View>
-              )}
-            />
-          </View>
-        </BottomSheet>
+        <View className="mr-5">
+          <Ionicons
+            onPress={() => navigation.navigate("Search")}
+            name="ios-search"
+            size={24}
+            color="white"
+          />
+        </View>
       </View>
-    );
-  }
+      <View className="items-center">
+        <Image
+          resizeMode="contain"
+          source={useFindIcon(
+            weatherData?.current?.condition?.text,
+            weatherData?.current?.is_day
+          )}
+          style={{ width: 250, height: 210 }}
+        />
+        <Text className="text-white font-bold text-[80px] tracking-tighter">
+          {weatherData?.current?.temp_c.toFixed(0)}°C
+        </Text>
+        <Text className="text-white font-medium text-lg">
+          {weatherData?.current?.condition?.text.toUpperCase()}
+        </Text>
+        <Text className="text-white/50 tracking-tight mt-1">
+          {dayjs(weatherData?.location?.localtime).format("dddd DD")} •{" "}
+          {dayjs(weatherData?.location?.localtime).format("HH:mm")}
+        </Text>
+      </View>
+      <View className="mt-3">
+        <ForecastData location={location} />
+      </View>
+      <BottomSheet
+        handleIndicatorStyle={{ backgroundColor: "#ffffff20" }}
+        backgroundComponent={({ style }) => (
+          <BlurView style={style} intensity={100} tint="dark" />
+        )}
+        ref={bottomSheetRef}
+        index={0}
+        snapPoints={snapPoints}
+      >
+        <WeatherDetails
+          astronomyData={astronomyData}
+          weatherData={weatherData}
+        />
+      </BottomSheet>
+    </View>
+  );
 }
