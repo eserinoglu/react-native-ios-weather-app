@@ -1,6 +1,3 @@
-//Create a hook to handle which icon to display based on the weather condition
-
-// Path: src/hooks/useFindIcon.js
 import { useMemo } from "react";
 import sunny from "../../assets/icons/day/sunny.png";
 import cloudy from "../../assets/icons/day/cloudy.png";

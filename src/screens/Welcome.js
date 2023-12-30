@@ -1,27 +1,32 @@
-import { View, Text, Image, TouchableOpacity } from "react-native";
+import { View, Text, Image, TouchableOpacity, Pressable } from "react-native";
 import React from "react";
-import image from "../../assets/vector.jpeg";
+import background from "../../assets/background.avif";
 import { useLocation } from "../context/LocationContext";
+import location from "../../assets/location.png";
+import { Ionicons } from "@expo/vector-icons";
 
 export default function Welcome() {
   const { askLocation } = useLocation();
   return (
-    <View className="flex-1 bg-white items-center justify-center px-5">
-      <Image source={image} className="w-48 h-48 mb-5" />
-      <Text className="text-black/80 font-bold tracking-tight text-3xl text-center">
-        Welcome to Weather App
+    <View className="flex-1 items-center justify-center">
+      <Image source={background} className="absolute w-full h-full" />
+      <Image
+        resizeMode="contain"
+        source={location}
+        style={{ width: 300, height: 300 }}
+      />
+      <Text className="text-white/80 font-bold tracking-tight text-2xl text-center px-7 mt-3 mb-10">
+        Allow access to your location to get the weather forecast for your area.
       </Text>
-      <Text className="text-black/60 tracking-tight mt-2 text-center">
-        Allow us to use your location to show you the weather forecast.
-      </Text>
-      <TouchableOpacity
-        className="bg-blue-600 rounded-lg px-5 py-3 mt-5"
+      <Pressable
         onPress={() => askLocation()}
+        className="bg-white/20 rounded-xl p-3 flex-row items-center shadow-xl w-[93%] justify-center mx-auto space-x-2"
       >
-        <Text className="text-white tracking-tight font-medium text-lg">
-          Allow location
+        <Ionicons name="ios-location" size={24} color="white" />
+        <Text className="text-lg font-semibold tracking-tight text-white">
+          Share location
         </Text>
-      </TouchableOpacity>
+      </Pressable>
     </View>
   );
 }

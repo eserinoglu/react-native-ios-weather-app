@@ -7,13 +7,16 @@ import { Ionicons } from "@expo/vector-icons";
 export default function ForecastData({ location }) {
   const [forecastData, setForecastData] = useState(null);
   const fetchForecastData = async () => {
-    const res = await fetch(
-      `http://api.weatherapi.com/v1/forecast.json?key=cd3ffd95c70846e09c5140130232912&q=${location.coords.latitude}, ${location.coords.longitude}&days=7&aqi=no&alerts=no`
-    );
-    const data = await res.json();
-    setForecastData(data);
+    try {
+      const res = await fetch(
+        `http://api.weatherapi.com/v1/forecast.json?key=cd3ffd95c70846e09c5140130232912&q=${location.coords.latitude}, ${location.coords.longitude}&days=7&aqi=no&alerts=no`
+      );
+      const data = await res.json();
+      setForecastData(data);
+    } catch (err) {
+      console.log(err);
+    }
   };
-  const now = new Date();
   const [dayIndex, setDayIndex] = useState(0);
   useEffect(() => {
     fetchForecastData();

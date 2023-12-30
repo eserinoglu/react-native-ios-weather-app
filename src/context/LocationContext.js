@@ -20,10 +20,6 @@ export const LocationProvider = ({ children }) => {
     setIsLoading(false);
   };
 
-  useEffect(() => {
-    askLocation();
-  }, []);
-
   return (
     <LocationContext.Provider value={{ location, errorMsg, askLocation }}>
       {isLoading ? (
