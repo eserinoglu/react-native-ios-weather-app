@@ -17,7 +17,6 @@ import nightThunder from "../../assets/icons/night/thunder.png";
 import nightOvercast from "../../assets/icons/night/overcast.png";
 
 export default function useFindIcon(condition, isDay) {
-  // Comment sample
   const icon = useMemo(() => {
     switch (condition) {
       case "Sunny":
